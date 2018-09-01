@@ -13,7 +13,9 @@ enum HHJBannerViewDirection {
     case right
 }
 
-class HHJBannerView: UIView, UIScrollViewDelegate {
+public class HHJBannerView: UIView {
+    
+    /// 设置pageControl圆点的颜色
     var currentPageIndicatorTintColor = UIColor(red: 0x08/255, green: 0xB7/255, blue: 0x9E/255, alpha: 1.0) {
         didSet {
             pageControl.currentPageIndicatorTintColor = currentPageIndicatorTintColor
@@ -24,16 +26,26 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
             pageControl.pageIndicatorTintColor = pageControlerTintColor
         }
     }
+    
+    /// 设置数据源和点击事件
     var bannerDidSelectedBlock: (_ index: Int) -> Void
     var dataSourceBlock: (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void
-    var imageCount: Int
     
+    
+    fileprivate var imageCount: Int
     fileprivate var imageViews = [HHJBannerImageView]()
     fileprivate let scrollView = UIScrollView()
     fileprivate var currentImageView: HHJBannerImageView!
     fileprivate let pageControl = UIPageControl()
     weak fileprivate var scrollViewTimer: Timer?
     
+    /// 初始化方法
+    ///
+    /// - Parameters:
+    ///   - frame: 尺寸
+    ///   - imageCount: 图片的数量
+    ///   - dataSource: 数据源
+    ///   - delegate: 点击事件
     init(frame: CGRect, imageCount: Int, dataSource:@escaping (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void, delegate:@escaping (_ index: Int) -> Void) {
         self.imageCount = imageCount
         self.dataSourceBlock = dataSource
@@ -42,12 +54,6 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
         loadSubView()
     }
     
-    //    init(frame: CGRect, bannerModels: [Banner], block:@escaping (_ index: Int) -> Void) {
-    //        self.bannerModels = bannerModels
-    //        self.bannerDidSelectedBlock = block
-    //        super.init(frame: frame)
-    //        loadSubView()
-    //    }
     
     /// 初始化所有视图
     fileprivate func loadSubView() {
@@ -75,7 +81,11 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
     
     
     /// 当获得新的数据调用该方法刷新一下显示，第一次创建本对象时不需要调用，会自动调用
-    func reloadSubView() {
+    public func reloadSubView(newImageCount : Int = 0) {
+        if newImageCount != 0 {
+            imageCount = newImageCount
+        }
+        
         scrollView.contentOffset = CGPoint(x: scrollView.bounds.size.width, y: 0)
         if imageCount <= 1 {
             scrollView.isScrollEnabled = false;
@@ -106,49 +116,8 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
         pageControl.addTarget(self, action: #selector(HHJBannerView.pageControlDidSelected), for: .valueChanged)
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    //监听滑动事件，修改显示的各种东西
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < 2*scrollView.bounds.size.width {
-            return
-        }
-        
-        if scrollView.contentOffset.x <= 0 {
-            getCurrentIamgeView(direction:.left)
-            for (_, imageView) in imageViews.enumerated() {
-                if imageView.frame.origin.x-scrollView.contentOffset.x<scrollView.bounds.size.width*1.5 {
-                    imageView.frame = CGRect(x: imageView.frame.origin.x+scrollView.bounds.size.width, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
-                } else {
-                    imageView.frame = CGRect(x: 0, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
-                    var index = currentImageView.index-1
-                    if index < 0 {
-                        index = imageCount-1
-                    }
-                    imageView.index = index
-                    setButton(imageView, forImageAt: index)
-                }
-            }
-        } else if scrollView.contentOffset.x >= 2*scrollView.bounds.size.width {
-            getCurrentIamgeView(direction: .right)
-            for (_, imageView) in imageViews.enumerated() {
-                if scrollView.contentOffset.x-imageView.frame.origin.x<scrollView.bounds.size.width*1.5 {
-                    imageView.frame = CGRect(x: imageView.frame.origin.x-scrollView.bounds.size.width, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
-                } else {
-                    imageView.frame = CGRect(x: scrollView.bounds.size.width * 2, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
-                    var index = currentImageView.index+1
-                    if index >= imageCount {
-                        index = 0
-                    }
-                    imageView.index = index
-                    setButton(imageView, forImageAt: index)
-                }
-            }
-        }
-        scrollView.contentOffset = CGPoint(x: scrollView.bounds.size.width, y: 0)
     }
     
     fileprivate func getCurrentIamgeView(direction: HHJBannerViewDirection) {
@@ -206,19 +175,12 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
     }
     
     //移除Timer
-    override func removeFromSuperview() {
+    override public func removeFromSuperview() {
         invalidateAutoScrollViewTimer()
         super.removeFromSuperview()
     }
     
-    //用户手动滑动时，关闭自动滑动定时器
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        invalidateAutoScrollViewTimer()
-    }
-    //用户手动滑动结束时，打开自动滑动定时器
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        setTimer()
-    }
+
     /*
      // Only override draw() if you perform custom drawing.
      // An empty implementation adversely affects performance during animation.
@@ -227,6 +189,57 @@ class HHJBannerView: UIView, UIScrollViewDelegate {
      }
      */
     
+}
+
+extension HHJBannerView: UIScrollViewDelegate {
+    //用户手动滑动时，关闭自动滑动定时器
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        invalidateAutoScrollViewTimer()
+    }
+    //用户手动滑动结束时，打开自动滑动定时器
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        setTimer()
+    }
+    
+    //监听滑动事件，修改显示的各种东西
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.x > 0 && scrollView.contentOffset.x < 2*scrollView.bounds.size.width {
+            return
+        }
+        
+        if scrollView.contentOffset.x <= 0 {
+            getCurrentIamgeView(direction:.left)
+            for (_, imageView) in imageViews.enumerated() {
+                if imageView.frame.origin.x-scrollView.contentOffset.x<scrollView.bounds.size.width*1.5 {
+                    imageView.frame = CGRect(x: imageView.frame.origin.x+scrollView.bounds.size.width, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
+                } else {
+                    imageView.frame = CGRect(x: 0, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
+                    var index = currentImageView.index-1
+                    if index < 0 {
+                        index = imageCount-1
+                    }
+                    imageView.index = index
+                    setButton(imageView, forImageAt: index)
+                }
+            }
+        } else if scrollView.contentOffset.x >= 2*scrollView.bounds.size.width {
+            getCurrentIamgeView(direction: .right)
+            for (_, imageView) in imageViews.enumerated() {
+                if scrollView.contentOffset.x-imageView.frame.origin.x<scrollView.bounds.size.width*1.5 {
+                    imageView.frame = CGRect(x: imageView.frame.origin.x-scrollView.bounds.size.width, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
+                } else {
+                    imageView.frame = CGRect(x: scrollView.bounds.size.width * 2, y: imageView.frame.origin.y, width: imageView.bounds.size.width, height: imageView.bounds.size.height)
+                    var index = currentImageView.index+1
+                    if index >= imageCount {
+                        index = 0
+                    }
+                    imageView.index = index
+                    setButton(imageView, forImageAt: index)
+                }
+            }
+        }
+        scrollView.contentOffset = CGPoint(x: scrollView.bounds.size.width, y: 0)
+    }
 }
 
 fileprivate class HHJBannerImageView: UIButton {
