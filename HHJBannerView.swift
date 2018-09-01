@@ -27,8 +27,10 @@ public class HHJBannerView: UIView {
         }
     }
     
-    /// 设置数据源和点击事件
+    /// 设置点击事件
     public var bannerDidSelectedBlock: (_ index: Int) -> Void
+    
+    /// 设置数据源，finishBlock请在设置图片完成后调用
     public var dataSourceBlock: (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void
     
     
@@ -44,7 +46,7 @@ public class HHJBannerView: UIView {
     /// - Parameters:
     ///   - frame: 尺寸
     ///   - imageCount: 图片的数量
-    ///   - dataSource: 数据源
+    ///   - dataSource: 数据源，finishBlock请在设置图片完成后调用
     ///   - delegate: 点击事件
     public init(frame: CGRect, imageCount: Int, dataSource:@escaping (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void, delegate:@escaping (_ index: Int) -> Void) {
         self.imageCount = imageCount
