@@ -46,7 +46,7 @@ public class HHJBannerView: UIView {
     ///   - imageCount: 图片的数量
     ///   - dataSource: 数据源
     ///   - delegate: 点击事件
-    init(frame: CGRect, imageCount: Int, dataSource:@escaping (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void, delegate:@escaping (_ index: Int) -> Void) {
+    public init(frame: CGRect, imageCount: Int, dataSource:@escaping (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void, delegate:@escaping (_ index: Int) -> Void) {
         self.imageCount = imageCount
         self.dataSourceBlock = dataSource
         self.bannerDidSelectedBlock = delegate
