@@ -16,20 +16,20 @@ enum HHJBannerViewDirection {
 public class HHJBannerView: UIView {
     
     /// 设置pageControl圆点的颜色
-    var currentPageIndicatorTintColor = UIColor(red: 0x08/255, green: 0xB7/255, blue: 0x9E/255, alpha: 1.0) {
+    public var currentPageIndicatorTintColor = UIColor(red: 0x08/255, green: 0xB7/255, blue: 0x9E/255, alpha: 1.0) {
         didSet {
             pageControl.currentPageIndicatorTintColor = currentPageIndicatorTintColor
         }
     }
-    var pageControlerTintColor = UIColor.gray {
+    public var pageControlerTintColor = UIColor.gray {
         didSet {
             pageControl.pageIndicatorTintColor = pageControlerTintColor
         }
     }
     
     /// 设置数据源和点击事件
-    var bannerDidSelectedBlock: (_ index: Int) -> Void
-    var dataSourceBlock: (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void
+    public var bannerDidSelectedBlock: (_ index: Int) -> Void
+    public var dataSourceBlock: (_ button: UIButton, _ index: Int, _ finishBlock:@escaping () -> Void) -> Void
     
     
     fileprivate var imageCount: Int
